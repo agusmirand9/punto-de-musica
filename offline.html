@@ -1,92 +1,144 @@
-// STORAGE  IndexedDB
-const DB_NAME = 'PuntoMusicaDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'puntos';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sin conexión · Punto de Música</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="icons/icon-192.png" type="image/png">
+  <meta name="theme-color" content="#C8B6FF">
+  <style>
+    :root {
+      --blanco: #FFFFFF;
+      --celeste: #AEEBFF;
+      --lila: #C8B6FF;
+      --rosa: #FFCAD4;
+      --texto-principal: #2B2D42;
+      --texto-secundario: #6B7280;
+    }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-// abrir ala base de datos
-function abrirDB() {
-  return new Promise((resolve, reject) => {
-    const peticion = indexedDB.open(DB_NAME, DB_VERSION);
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--texto-principal);
+      background: linear-gradient(135deg, var(--celeste) 0%, var(--lila) 50%, var(--rosa) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
 
-    peticion.addEventListener('upgradeneeded', (evento) => {
-      const db = evento.target.result;
+    .tarjeta {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 28px;
+      padding: 48px 36px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(43, 45, 66, 0.08);
+    }
 
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-        console.log('Object Store "puntos" creado');
-      }
-    });
+    .icono {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      display: block;
+    }
 
-    peticion.addEventListener('success', () => {
-      resolve(peticion.result);
-    });
+    .etiqueta {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
 
-    peticion.addEventListener('error', () => {
-      reject(peticion.error);
-    });
-  });
-}
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
 
-// CREAR,guardar un punto nuevo
-export async function guardarPunto(punto) {
-  const db = await abrirDB();
+    p {
+      color: var(--texto-secundario);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
 
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
+    .separador {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.6);
+      margin: 28px 0;
+    }
 
-    const peticion = store.add(punto);
+    .subtitulo {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--texto-secundario);
+      margin-bottom: 12px;
+    }
 
-    peticion.addEventListener('success', () => resolve(punto));
-    peticion.addEventListener('error', () => reject(peticion.error));
-  });
-}
+    .boton {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--texto-principal);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 16px rgba(43, 45, 66, 0.1);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
 
-//  los puntos guardados
+    .boton:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(43, 45, 66, 0.15);
+    }
 
-export async function obtenerPuntos() {
-  const db = await abrirDB();
+    footer {
+      margin-top: 36px;
+      font-size: 0.75rem;
+      color: rgba(43, 45, 66, 0.45);
+    }
+  </style>
+</head>
+<body>
 
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
+  <div class="tarjeta">
+    <span class="icono">📡</span>
+    <span class="etiqueta">Sin conexión</span>
+    <h1>Estás offline</h1>
+    <p>No hay conexión a internet en este momento.</p>
+    <p>Tus puntos musicales guardados siguen disponibles en la app.</p>
 
-    const peticion = store.getAll();
+    <hr class="separador">
 
-    peticion.addEventListener('success', () => resolve(peticion.result));
-    peticion.addEventListener('error', () => reject(peticion.error));
-  });
-}
+    <p class="subtitulo">¿Qué podés hacer?</p>
+    <p>Volvé a la pantalla principal para ver y editar tus puntos guardados. Todo lo que guardaste localmente sigue ahí.</p>
 
+    <a href="./index.html" class="boton">Volver a mis puntos</a>
+  </div>
 
-// MODIFICAR, editar un punto existente
-export async function modificarPunto(punto) {
-  const db = await abrirDB();
+  <footer>Punto de Música - TP2 - Agustina Miranda</footer>
 
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-
-    const peticion = store.put(punto);
-
-    peticion.addEventListener('success', () => resolve(punto));
-    peticion.addEventListener('error', () => reject(peticion.error));
-  });
-}
-
-
-// ELIMINAR, borrar un punto
-export async function eliminarPunto(id) {
-  const db = await abrirDB();
-
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-
-    const peticion = store.delete(id);
-
-    peticion.addEventListener('success', () => resolve());
-    peticion.addEventListener('error', () => reject(peticion.error));
-  });
-}
+</body>
+</html>
