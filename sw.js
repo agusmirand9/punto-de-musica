@@ -1,5 +1,5 @@
 // SERVICE WORKER 
-const CACHE_NAME = 'punto-musica-v6';
+const CACHE_NAME = 'punto-musica-v7';
 
 const ARCHIVOS_CACHE = [
   './',
